@@ -1,8 +1,14 @@
 package com.bruk.d2lastpicker.controller;
 
-import org.apache.coyote.Response;
+import com.bruk.d2lastpicker.dto.PublicMatchData;
+import com.bruk.d2lastpicker.service.TestService;
+import com.bruk.d2lastpicker.service.TestServiceImpl;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.bruk.d2lastpicker.util.ControllerError;
 import com.bruk.d2lastpicker.util.JSONTest;
 
+import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +30,14 @@ public class LastPickerController {
 
     private static final String TEST_URL = "/test";
     private static final String TEST2_URL = "/test2";
+
+    private static final String TEST3_URL = "/test3";
     private static final Logger LOG = LoggerFactory.getLogger(LastPickerController.class);
+
+    @Autowired
+    private TestService testService;
+
+
 
     @GetMapping(TEST_URL)
     public ResponseEntity<?> TestMethod() {
@@ -58,5 +75,19 @@ public class LastPickerController {
         }
 
     }
+
+    @GetMapping(TEST3_URL)
+    public ResponseEntity<?> TestThree() {
+
+        try{
+            List<PublicMatchData> matchesList = testService.getPublicMatches();
+            return ResponseEntity.ok(matchesList);
+        } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<ControllerError>(new ControllerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }
