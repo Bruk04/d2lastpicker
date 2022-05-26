@@ -39,7 +39,6 @@ public class TestServiceImpl implements TestService {
             } else {
                 String json = response.body();
 
-
                 LOG.debug("Mapping JSON onto Object");
                 ObjectMapper mapper = new ObjectMapper()
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

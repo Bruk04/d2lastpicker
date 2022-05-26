@@ -1,6 +1,10 @@
 package com.bruk.d2lastpicker.controller;
 
+import com.bruk.d2lastpicker.dto.PlayerHeroData;
+import com.bruk.d2lastpicker.dto.HeroData;
 import com.bruk.d2lastpicker.dto.PublicMatchData;
+import com.bruk.d2lastpicker.service.Dota2APIImpl;
+import com.bruk.d2lastpicker.service.Dota2APIService;
 import com.bruk.d2lastpicker.service.TestService;
 import com.bruk.d2lastpicker.service.TestServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -34,11 +38,16 @@ public class LastPickerController {
 
     private static final String TEST4_URL = "/pos12/{id}";
 
+    private static final String ALL_HEROES = "/heroes";
+
+    private static final String PLAYER_HEROES = "/{id}/heroes";
+
     private static final Logger LOG = LoggerFactory.getLogger(LastPickerController.class);
 
     @Autowired
     private TestService testService;
-
+    @Autowired
+    private Dota2APIService dota2APIService;
 
 
     @GetMapping(TEST_URL)
@@ -101,6 +110,32 @@ public class LastPickerController {
             LOG.debug("Their Team: {}", them);
             return ResponseEntity.ok(printedString);
         } catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<ControllerError>(new ControllerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(ALL_HEROES)
+    public ResponseEntity<?> getAllHeroes() {
+
+        try{
+            LOG.debug("Creating List Of Hero Data");
+            List<HeroData> matchesList = dota2APIService.getHeroData();
+            LOG.debug("List Creation Successful");
+            return ResponseEntity.ok(matchesList);
+        }catch(Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<ControllerError>(new ControllerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(PLAYER_HEROES)
+    public ResponseEntity<?> getPlayerHeroes(@PathVariable long id) {
+
+        try{
+            List<PlayerHeroData> matchesList = dota2APIService.getPlayerHeroData(id);
+            return ResponseEntity.ok(matchesList);
+        }catch(Exception e) {
             e.printStackTrace();
             return new ResponseEntity<ControllerError>(new ControllerError(e), HttpStatus.INTERNAL_SERVER_ERROR);
         }
