@@ -2,6 +2,7 @@ package com.bruk.d2lastpicker.service;
 
 
 import com.bruk.d2lastpicker.dto.HeroData;
+import com.bruk.d2lastpicker.dto.HeroMatchupData;
 import com.bruk.d2lastpicker.dto.PlayerHeroData;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -20,9 +21,9 @@ import java.util.List;
 
 @Service
 @Component
-public class Dota2APIImpl implements Dota2APIService {
+public class Dota2APIServiceImpl implements Dota2APIService {
 
-    public static final Logger LOG = LoggerFactory.getLogger(Dota2APIImpl.class);
+    public static final Logger LOG = LoggerFactory.getLogger(Dota2APIServiceImpl.class);
 
 
 
@@ -85,7 +86,36 @@ public class Dota2APIImpl implements Dota2APIService {
         }
     }
 
+    @Override
+    public List<HeroMatchupData> getHeroMatchupData(long heroId)
+    {
+
+        try {
+            String sURL = "https://api.opendota.com/api/heroes/%d/matchups";
+            LOG.info("calling URL", sURL);
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(sURL))
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
+            HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+            if (response.statusCode() != 200) {
+                LOG.error("Unable to contact remote server. Response code: ", response.statusCode());
+                return new ArrayList<HeroMatchupData>();
+            } else {
+                String json = response.body();
+
+                LOG.debug("Mapping JSON onto Object");
+                ObjectMapper mapper = new ObjectMapper()
+                        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                List<HeroMatchupData> matchesList = mapper.readValue(json, new TypeReference<List<HeroMatchupData>>() {});
+                return matchesList;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        }
 
 
-}
+    }
+
 
