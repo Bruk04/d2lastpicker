@@ -1,21 +1,21 @@
 package com.bruk.d2lastpicker.dto;
 
+import com.fasterxml.jackson.annotation.JsonGetter;
+
 import java.util.List;
 
 public class SuggestedPick {
+    private List<HeroData> suggestedPicks;
+    public SuggestedPick() {
+    }
 
-    // hero IDs for the front end to work with and know
-    private long hero_id = 0;
+    @JsonGetter
+    public List<HeroData> getSuggestedPicks() {
+        return suggestedPicks;
+    }
 
-    private long suggestedHeroID = 0;
-
-    // since I will have calculated the matchups for both teams in the MatchupService
-    // I can just return a single list that houses both the matchups for our team and the other team
-    private List<HeroMatchupData> bothTeams;
-
-    // the front end needs to have all the hero IDs and their names to display to the user
-    private HeroData allHeroData;
-
-
-
+    @JsonGetter
+    public void setSuggestedPicks(List<HeroData> suggestedPicks) {
+        this.suggestedPicks = suggestedPicks;
+    }
 }

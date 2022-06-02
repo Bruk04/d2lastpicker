@@ -28,10 +28,10 @@ public class Dota2APIServiceImpl implements Dota2APIService {
 
 
     @Override
-    public List<PlayerHeroData> getPlayerHeroData(long id) {
+    public List<PlayerHeroData> getPlayerHeroData(long playerId) {
         try {
 
-            String sURL = String.format("https://api.opendota.com/api/players/%d/heroes", id);
+            String sURL = String.format("https://api.opendota.com/api/players/%d/heroes", playerId);
             LOG.info("calling URL", sURL);
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(sURL))
@@ -40,8 +40,7 @@ public class Dota2APIServiceImpl implements Dota2APIService {
             HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 LOG.error("Unable to contact remote server. Response code: ", response.statusCode());
-                return new ArrayList<PlayerHeroData>(
-                );
+                return new ArrayList<PlayerHeroData>();
             } else {
                 String json = response.body();
 

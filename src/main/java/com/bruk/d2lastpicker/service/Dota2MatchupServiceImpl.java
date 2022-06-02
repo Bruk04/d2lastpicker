@@ -4,9 +4,10 @@ import com.bruk.d2lastpicker.dto.HeroData;
 import com.bruk.d2lastpicker.dto.HeroMatchupData;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Dota2MatchupServiceImpl {
+public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
     private Dota2APIService APIService;
 
@@ -15,15 +16,11 @@ public class Dota2MatchupServiceImpl {
         this.APIService = APIService;
     }
 
-    // function is void for now, more to do with it later.
-    public void calculateMatchup(long id, List<HeroData> us, List<HeroData> them)
+    public List<HeroData> calculateMatchup(long playerId, List<Integer> us, List<Integer> them)
     {
         try
         {
-            APIService.getHeroData();
-            APIService.getPlayerHeroData(id);
-            APIService.getHeroMatchupData(id);
-            return;
+            return new ArrayList<HeroData>();
         } catch(Exception e)
         {
             throw new RuntimeException(e);
