@@ -2,7 +2,6 @@ package com.bruk.d2lastpicker.controller;
 
 import com.bruk.d2lastpicker.dto.PlayerHeroData;
 import com.bruk.d2lastpicker.dto.HeroData;
-import com.bruk.d2lastpicker.dto.PublicMatchData;
 import com.bruk.d2lastpicker.service.Dota2APIService;
 import com.bruk.d2lastpicker.service.Dota2MatchupService;
 import org.slf4j.Logger;

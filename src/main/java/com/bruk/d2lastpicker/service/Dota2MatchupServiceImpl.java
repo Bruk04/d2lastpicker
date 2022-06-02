@@ -22,7 +22,7 @@ public class Dota2MatchupServiceImpl {
         {
             APIService.getHeroData();
             APIService.getPlayerHeroData(id);
-            APIService.getPlayerHeroData(id);
+            APIService.getHeroMatchupData(id);
             return;
         } catch(Exception e)
         {
