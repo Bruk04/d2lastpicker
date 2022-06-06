@@ -26,6 +26,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     public Dota2MatchupServiceImpl(Dota2APIService APIService) {
         this.APIService = APIService;
     }
+    public Dota2MatchupServiceImpl() {}
 
     public List<HeroData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them)
     {
@@ -52,7 +53,6 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
             String s = String.format("The expected number of heros was %d but you supplied %d", expectedLength, heroList.size());
             throw new D2LastPickerValidationException(s);
         }
-
 
         for(int i = 0; i < heroList.size(); i++)
         {
