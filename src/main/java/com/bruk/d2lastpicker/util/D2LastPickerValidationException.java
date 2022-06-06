@@ -11,4 +11,10 @@ public class D2LastPickerValidationException extends RuntimeException {
         super(e);
     }
 
+    public D2LastPickerValidationException(String s)
+    {
+        super(s);
+    }
+
+
 }

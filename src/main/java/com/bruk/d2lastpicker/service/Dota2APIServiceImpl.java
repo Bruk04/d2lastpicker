@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Component
 public class Dota2APIServiceImpl implements Dota2APIService {
 
     public static final Logger LOG = LoggerFactory.getLogger(Dota2APIServiceImpl.class);
