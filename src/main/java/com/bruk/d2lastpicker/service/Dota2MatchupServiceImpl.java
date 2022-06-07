@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -63,5 +65,20 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                 throw new D2LastPickerValidationException(s);
             }
         }
+
+        // test for duplicate
+        Set<Integer> hset = new HashSet<>();
+        for(Integer i : heroList)
+        {
+            if(hset.add(i) == false)
+            {
+                String s = String.format("Hero ID %d is a duplicate in the hero list", i);
+                throw new D2LastPickerValidationException(s);
+            }
+            else {
+                hset.add(i);
+
+            }
+        }
+        }
     }
-}

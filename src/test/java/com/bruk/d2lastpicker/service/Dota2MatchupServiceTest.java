@@ -53,12 +53,50 @@ public class Dota2MatchupServiceTest {
         List<Integer> them = listMaker(5);
         try {
             matchupService.calculateMatchup(-31312, us, them);
-            fail("Unexpected exception");
-
+            fail("PlayerID is negative, when it should be positive");
         } catch(Exception e) {
-
         }
     }
+
+    @Test
+    public void should_throw_on_large_us_list()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(5);
+        List<Integer> them = listMaker(5);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The us team is too large, should be 4 heroes");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
+    public void should_throw_on_small_us_list()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(3);
+        List<Integer> them = listMaker(5);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The us team is too small, should be 4 heroes");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
+    public void should_throw_on_small_them_list()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(4);
+        List<Integer> them = listMaker(4);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The them team is too small, should be 5 heroes");
+        } catch(Exception e) {
+        }
+    }
+
 
 
 }
