@@ -85,6 +85,19 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
+    public void should_throw_on_large_them_list()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(4);
+        List<Integer> them = listMaker(6);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The them team is too large, should be 5 heroes");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
     public void should_throw_on_small_them_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
@@ -93,6 +106,53 @@ public class Dota2MatchupServiceTest {
         try {
             matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
             fail("The them team is too small, should be 5 heroes");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
+    public void should_throw_on_bad_hero_id_us()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(4);
+        List<Integer> them = listMaker(5);
+        us.remove(4);
+        us.add(-32);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The us team has a bad hero ID");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
+    public void should_throw_on_bad_hero_id_them()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(4);
+        List<Integer> them = listMaker(5);
+        them.remove(5);
+        them.add(180);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("The them team has a bad hero ID");
+        } catch(Exception e) {
+        }
+    }
+
+    @Test
+    public void should_throw_on_duplicate_list()
+    {
+        Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
+        List<Integer> us = listMaker(4);
+        List<Integer> them = listMaker(5);
+        us.remove(4);
+        them.remove(5);
+        us.add(4, 32);
+        them.add(4, 32);
+        try {
+            matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
+            fail("There exists a duplicate hero ID between the teams");
         } catch(Exception e) {
         }
     }
