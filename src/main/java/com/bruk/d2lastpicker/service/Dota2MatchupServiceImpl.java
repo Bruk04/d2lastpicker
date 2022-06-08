@@ -52,7 +52,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
         if(heroList.size() != expectedLength)
         {
-            String s = String.format("The expected number of heros was %d but you supplied %d", expectedLength, heroList.size());
+            String s = String.format("The expected number of heroes was %d but you supplied %d", expectedLength, heroList.size());
             throw new D2LastPickerValidationException(s);
         }
 

@@ -32,7 +32,7 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_accept_valid_input()
+    public void calculateMatchup_should_accept_valid_input()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
@@ -46,7 +46,7 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_bad_playerid()
+    public void calculateMatchup_should_throw_on_bad_playerid()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
@@ -59,7 +59,7 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_large_us_list()
+    public void calculateMatchup_should_throw_on_large_us_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(5);
@@ -72,7 +72,7 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_small_us_list()
+    public void calculateMatchup_should_throw_on_small_us_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(3);
@@ -85,11 +85,12 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_large_them_list()
+    public void calculateMatchup_should_throw_on_large_them_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
-        List<Integer> them = listMaker(6);
+        List<Integer> them = listMaker(5);
+        them.add(23);
         try {
             matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
             fail("The them team is too large, should be 5 heroes");
@@ -98,7 +99,7 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_small_them_list()
+    public void calculateMatchup_should_throw_on_small_them_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
@@ -111,12 +112,12 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_bad_hero_id_us()
+    public void calculateMatchup_should_throw_on_bad_hero_id_us()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
         List<Integer> them = listMaker(5);
-        us.remove(4);
+        us.remove(3);
         us.add(-32);
         try {
             matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
@@ -126,12 +127,12 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_bad_hero_id_them()
+    public void calculateMatchup_should_throw_on_bad_hero_id_them()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
         List<Integer> them = listMaker(5);
-        them.remove(5);
+        them.remove(4);
         them.add(180);
         try {
             matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
@@ -141,15 +142,13 @@ public class Dota2MatchupServiceTest {
     }
 
     @Test
-    public void should_throw_on_duplicate_list()
+    public void calculateMatchup_should_throw_on_duplicate_list()
     {
         Dota2MatchupServiceImpl matchupService = new Dota2MatchupServiceImpl();
         List<Integer> us = listMaker(4);
         List<Integer> them = listMaker(5);
-        us.remove(4);
-        them.remove(5);
-        us.add(4, 32);
-        them.add(4, 32);
+        us.remove(3);
+        us.add(3);
         try {
             matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
             fail("There exists a duplicate hero ID between the teams");
