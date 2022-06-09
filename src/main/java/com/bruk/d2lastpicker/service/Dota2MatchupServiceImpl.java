@@ -1,8 +1,12 @@
 package com.bruk.d2lastpicker.service;
 
+import com.bruk.d2lastpicker.controller.LastPickerController;
 import com.bruk.d2lastpicker.dto.HeroData;
 import com.bruk.d2lastpicker.dto.HeroMatchupData;
+import com.bruk.d2lastpicker.dto.PlayerHeroData;
 import com.bruk.d2lastpicker.util.D2LastPickerValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +24,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private static final int EXPECTED_US_LIST_LENGTH = 4;
     private static final int EXPECTED_THEM_LIST_LENGTH = 5;
 
+    private static final Logger LOG = LoggerFactory.getLogger(Dota2MatchupServiceImpl.class);
+
 
     private Dota2APIService APIService;
 
@@ -28,57 +34,78 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     public Dota2MatchupServiceImpl(Dota2APIService APIService) {
         this.APIService = APIService;
     }
-    public Dota2MatchupServiceImpl() {}
 
-    public List<HeroData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them)
-    {
+    public Dota2MatchupServiceImpl() {
+    }
+
+    public List<HeroData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them) {
         validatePlayerID(playerID);
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
+        validateBothLists(us, them);
+        List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerID);
+        List<HeroData> allHeroData = APIService.getHeroData();
+
+
         return new ArrayList<HeroData>();
     }
 
 
-    private void validatePlayerID(long playerID)
-    {
-        if(playerID < 0)
-        {
+    private void validatePlayerID(long playerID) {
+        if (playerID < 0) {
             String s = "Player ID was negative";
+            String error = String.format("player ID %d was negative or invalid", playerID);
+            LOG.error(error);
             throw new D2LastPickerValidationException(s);
         }
     }
 
     private void validateHeroIDs(List<Integer> heroList, int expectedLength) {
 
-        if(heroList.size() != expectedLength)
-        {
-            String s = String.format("The expected number of heroes was %d but you supplied %d", expectedLength, heroList.size());
+        if (heroList.size() != expectedLength) {
+            String s = String.format("the expected number of heroes was %d but you supplied %d", expectedLength, heroList.size());
+            LOG.error(s);
             throw new D2LastPickerValidationException(s);
         }
 
-        for(int i = 0; i < heroList.size(); i++)
-        {
+        LOG.debug("The hero list was of the expected size");
+
+        for (int i = 0; i < heroList.size(); i++) {
             int currentEntry = heroList.get(i);
-            if(currentEntry > MAXIMUM_HERO_ID || currentEntry < 0)
-            {
-                String s = String.format("Hero ID %d is out of bounds in the hero list", i);
+            if (currentEntry > MAXIMUM_HERO_ID || currentEntry < 0) {
+                String s = String.format("hero ID %d is out of bounds in the hero list", i);
+                LOG.error(s);
                 throw new D2LastPickerValidationException(s);
+
             }
         }
+        LOG.debug("The no heroes inside the hero list was out bounds");
+        validateHeroList(heroList);
+        LOG.debug("No issues found with this list");
+    }
 
-        // test for duplicate
-        Set<Integer> hset = new HashSet<>();
-        for(Integer i : heroList)
+    private void validateBothLists(List<Integer> us, List<Integer>them) {
+        // test for duplicate between both lists
+        List<Integer> tempList = new ArrayList<>();
+        tempList.addAll(us);
+        tempList.addAll(them);
+        LOG.debug("Attempting to make new hashset call to validateBothLists successful");
+        validateHeroList(tempList);
+    }
+
+    private void validateHeroList(List<Integer> heroList)
         {
-            if(hset.add(i) == false)
-            {
-                String s = String.format("Hero ID %d is a duplicate in the hero list", i);
-                throw new D2LastPickerValidationException(s);
+            // test for duplicate inside the same list
+            LOG.debug("Attempting to make new hashset call to validateHeroList successful");
+            Set<Integer> hset = new HashSet<>();
+            for (Integer i : heroList) {
+                if (hset.add(i) == false) {
+                    String s = String.format("hero ID %d is a duplicate in the hero list", i);
+                    LOG.error(s);
+                    throw new D2LastPickerValidationException(s);
+                } else {
+                    hset.add(i);
+                }
             }
-            else {
-                hset.add(i);
-
-            }
-        }
         }
     }
