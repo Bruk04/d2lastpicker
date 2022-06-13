@@ -1,6 +1,5 @@
 package com.bruk.d2lastpicker.service;
 
-import com.bruk.d2lastpicker.controller.LastPickerController;
 import com.bruk.d2lastpicker.dto.HeroData;
 import com.bruk.d2lastpicker.dto.HeroMatchupData;
 import com.bruk.d2lastpicker.dto.PlayerHeroData;
@@ -23,6 +22,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private static final int MAXIMUM_HERO_ID = 137;
     private static final int EXPECTED_US_LIST_LENGTH = 4;
     private static final int EXPECTED_THEM_LIST_LENGTH = 5;
+    private static final double AVERAGE_WINRATE = 50.00;
 
     private static final Logger LOG = LoggerFactory.getLogger(Dota2MatchupServiceImpl.class);
 
@@ -43,15 +43,56 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerID);
         List<HeroData> allHeroData = APIService.getHeroData();
+       
+        getHeroMatchups(us, them);
 
 
         return new ArrayList<HeroData>();
     }
 
+    private void findHeroesInMatch(long playerID, List<Integer> us, List<Integer> them)
+    {
 
-    private void validatePlayerID(long playerID) {
+    }
+
+    private List<String> PlayerDataParser(long playerID)
+    {
+        List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerID);
+        List<String> allHeroIds = null;
+        for(PlayerHeroData playerData : playerHeroData)
+        {
+            String heroId = playerData.getHero_id();
+            allHeroIds.add(heroId);
+        }
+        return allHeroIds;
+    }
+
+    private List<Double> getHeroMatchups(List<Integer> us, List<Integer> them)
+    {
+        long heroID = us.get(0);
+        List<Double> heroWinrates = null;
+        List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(heroID);
+        for(HeroMatchupData heroData : heroMatchupData) {
+            long hero = heroData.getHero_id();
+            if (us.contains(hero) || them.contains(hero)) {
+                long wins = heroData.getWins();
+                long games = heroData.getGames_played();
+                double winrate = wins/games;
+                LOG.info(String.valueOf(winrate));
+                heroWinrates.add(winrate);
+            }
+            else
+            {
+                continue;
+            }
+        }
+        return heroWinrates;
+    }
+
+
+
+    public void validatePlayerID(long playerID) {
         if (playerID < 0) {
             String s = "Player ID was negative";
             String error = String.format("player ID %d was negative or invalid", playerID);
@@ -60,7 +101,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         }
     }
 
-    private void validateHeroIDs(List<Integer> heroList, int expectedLength) {
+    public void validateHeroIDs(List<Integer> heroList, int expectedLength) {
 
         if (heroList.size() != expectedLength) {
             String s = String.format("the expected number of heroes was %d but you supplied %d", expectedLength, heroList.size());
@@ -84,7 +125,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         LOG.debug("No issues found with this list");
     }
 
-    private void validateBothLists(List<Integer> us, List<Integer>them) {
+    public void validateBothLists(List<Integer> us, List<Integer>them) {
         // test for duplicate between both lists
         List<Integer> tempList = new ArrayList<>();
         tempList.addAll(us);
@@ -93,7 +134,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroList(tempList);
     }
 
-    private void validateHeroList(List<Integer> heroList)
+    public void validateHeroList(List<Integer> heroList)
         {
             // test for duplicate inside the same list
             LOG.debug("Attempting to make new hashset call to validateHeroList successful");
