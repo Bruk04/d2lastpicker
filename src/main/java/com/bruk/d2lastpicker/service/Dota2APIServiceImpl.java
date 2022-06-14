@@ -61,7 +61,8 @@ public class Dota2APIServiceImpl implements Dota2APIService {
         try {
 
             String sURL = "https://api.opendota.com/api/heroes";
-            LOG.info("calling URL", sURL);
+
+            LOG.debug(String.format("calling URL %s", sURL));
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(sURL))
                     .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -73,7 +74,7 @@ public class Dota2APIServiceImpl implements Dota2APIService {
             } else {
                 String json = response.body();
 
-                LOG.debug("Mapping JSON onto Object");
+                LOG.debug("Mapping JSON onto List<HeroData>");
                 ObjectMapper mapper = new ObjectMapper()
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 List<HeroData> matchesList = mapper.readValue(json, new TypeReference<List<HeroData>>() {});
@@ -89,8 +90,8 @@ public class Dota2APIServiceImpl implements Dota2APIService {
     {
 
         try {
-            String sURL = "https://api.opendota.com/api/heroes/%d/matchups";
-            LOG.info("calling URL", sURL);
+            String sURL = String.format("https://api.opendota.com/api/heroes/%d/matchups", heroId);
+            LOG.debug(String.format("calling URL %s", sURL));
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(sURL))
                     .method("GET", HttpRequest.BodyPublishers.noBody())
@@ -102,7 +103,7 @@ public class Dota2APIServiceImpl implements Dota2APIService {
             } else {
                 String json = response.body();
 
-                LOG.debug("Mapping JSON onto Object");
+                LOG.debug("Mapping JSON onto List<HeroMatchupData>");
                 ObjectMapper mapper = new ObjectMapper()
                         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 List<HeroMatchupData> matchesList = mapper.readValue(json, new TypeReference<List<HeroMatchupData>>() {});

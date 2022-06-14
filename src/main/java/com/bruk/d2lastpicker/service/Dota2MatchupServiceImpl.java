@@ -56,10 +56,10 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
     }
 
-    private List<String> PlayerDataParser(long playerID)
+    private List<String> playerDataParser(long playerID)
     {
         List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerID);
-        List<String> allHeroIds = null;
+        List<String> allHeroIds = new ArrayList<>();
         for(PlayerHeroData playerData : playerHeroData)
         {
             String heroId = playerData.getHero_id();
@@ -68,23 +68,21 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return allHeroIds;
     }
 
+
     private List<Double> getHeroMatchups(List<Integer> us, List<Integer> them)
     {
         long heroID = us.get(0);
-        List<Double> heroWinrates = null;
         List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(heroID);
-        for(HeroMatchupData heroData : heroMatchupData) {
-            long hero = heroData.getHero_id();
-            if (us.contains(hero) || them.contains(hero)) {
-                long wins = heroData.getWins();
-                long games = heroData.getGames_played();
+        List<Double> heroWinrates = new ArrayList<>();
+        for(HeroMatchupData matchupData : heroMatchupData) {
+            long hero = matchupData.getHero_id();
+            Integer heroInt = (int)hero;
+            if (us.contains(heroInt) || them.contains(heroInt)) {
+                double wins = matchupData.getWins();
+                double games = matchupData.getGames_played();
                 double winrate = wins/games;
-                LOG.info(String.valueOf(winrate));
+                LOG.debug(String.valueOf(winrate));
                 heroWinrates.add(winrate);
-            }
-            else
-            {
-                continue;
             }
         }
         return heroWinrates;

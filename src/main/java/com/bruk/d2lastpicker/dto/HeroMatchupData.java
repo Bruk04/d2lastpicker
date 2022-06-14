@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSetter;
 public class HeroMatchupData {
 
     private long hero_id = 0;
-    private long games_played = 0;
-    private long wins = 0;
+    private double games_played = 0;
+    private double wins = 0;
 
     public HeroMatchupData() {
     }
@@ -23,23 +23,23 @@ public class HeroMatchupData {
     }
 
     @JsonGetter
-    public long getGames_played() {
+    public double getGames_played() {
         return games_played;
     }
 
     @JsonSetter
 
-    public void setGames_played(long games_played) {
+    public void setGames_played(double games_played) {
         this.games_played = games_played;
     }
 
     @JsonGetter
-    public long getWins() {
+    public double getWins() {
         return wins;
     }
 
     @JsonSetter
-    public void setWins(long wins) {
+    public void setWins(double wins) {
         this.wins = wins;
     }
 }
