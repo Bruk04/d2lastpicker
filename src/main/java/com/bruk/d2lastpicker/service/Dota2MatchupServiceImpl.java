@@ -3,6 +3,7 @@ package com.bruk.d2lastpicker.service;
 import com.bruk.d2lastpicker.dto.HeroData;
 import com.bruk.d2lastpicker.dto.HeroMatchupData;
 import com.bruk.d2lastpicker.dto.PlayerHeroData;
+import com.bruk.d2lastpicker.util.CarryHeroes;
 import com.bruk.d2lastpicker.util.D2LastPickerValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
 
     private Dota2APIService APIService;
+    private CarryHeroes carryHeroes;
 
 
     @Autowired
@@ -43,17 +45,11 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        List<HeroData> allHeroData = APIService.getHeroData();
-       
         getHeroMatchups(us, them);
+        getPlayerHeroes(playerID);
 
 
         return new ArrayList<HeroData>();
-    }
-
-    private void findHeroesInMatch(long playerID, List<Integer> us, List<Integer> them)
-    {
-
     }
 
     private List<String> playerDataParser(long playerID)
@@ -86,6 +82,38 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
             }
         }
         return heroWinrates;
+    }
+
+    private void getPlayerHeroes(long playerId)
+    {
+        List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerId);
+        List<HeroData> allHeroData = APIService.getHeroData();
+        List<String> possiblePosOneHeroes = new ArrayList<>();
+        List<String> possiblePosTwoHeroes = new ArrayList<>();
+        List<Integer> posOne = new ArrayList<>();
+        List<Integer> posTwo = new ArrayList<>();
+        posOne.addAll(carryHeroes.getPositionOneHeroes());
+        posTwo.addAll(carryHeroes.getPositionTwoHeroesHeroes());
+
+        for(PlayerHeroData playerData : playerHeroData)
+        {
+            LOG.debug("inside the for loop");
+            if(posOne.contains(playerData.getHero_id()))
+            {
+                LOG.debug("Inside the if");
+               possiblePosOneHeroes.add(playerData.getHero_id());
+               LOG.debug(playerData.getHero_id());
+            }
+            if(posTwo.contains(playerData.getHero_id()))
+            {
+                possiblePosTwoHeroes.add(playerData.getHero_id());
+                LOG.debug(playerData.getHero_id());
+
+            }
+        }
+
+
+
     }
 
 
