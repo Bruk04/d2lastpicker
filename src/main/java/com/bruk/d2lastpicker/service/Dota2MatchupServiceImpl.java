@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -84,38 +85,53 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return heroWinrates;
     }
 
-    private void getPlayerHeroes(long playerId)
+    private List<PlayerHeroData> getPlayerHeroes(long playerId)
     {
+        LOG.debug("Calling getPlayerHeroes");
         List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerId);
-        List<HeroData> allHeroData = APIService.getHeroData();
-        List<String> possiblePosOneHeroes = new ArrayList<>();
-        List<String> possiblePosTwoHeroes = new ArrayList<>();
+        List<Integer> possiblePosOneHeroes = new ArrayList<>();
+        List<Integer> possiblePosTwoHeroes = new ArrayList<>();
+        List<Integer> allPossibleHeroes = new ArrayList<>();
+        List<PlayerHeroData> cutDownList = new ArrayList<>();
         List<Integer> posOne = new ArrayList<>();
         List<Integer> posTwo = new ArrayList<>();
+        CarryHeroes carryHeroes = new CarryHeroes();
         posOne.addAll(carryHeroes.getPositionOneHeroes());
         posTwo.addAll(carryHeroes.getPositionTwoHeroesHeroes());
 
         for(PlayerHeroData playerData : playerHeroData)
         {
-            LOG.debug("inside the for loop");
-            if(posOne.contains(playerData.getHero_id()))
+            if(posOne.contains(playerData.getHeroValue()))
             {
-                LOG.debug("Inside the if");
-               possiblePosOneHeroes.add(playerData.getHero_id());
+               possiblePosOneHeroes.add(playerData.getHeroValue());
                LOG.debug(playerData.getHero_id());
             }
-            if(posTwo.contains(playerData.getHero_id()))
+            if(posTwo.contains(playerData.getHeroValue()))
             {
-                possiblePosTwoHeroes.add(playerData.getHero_id());
+                possiblePosTwoHeroes.add(playerData.getHeroValue());
                 LOG.debug(playerData.getHero_id());
 
             }
         }
+        allPossibleHeroes.addAll(possiblePosOneHeroes);
+        allPossibleHeroes.addAll(possiblePosTwoHeroes);
+        for(PlayerHeroData playerData : playerHeroData)
+        {
+            if(allPossibleHeroes.contains(playerData.getHeroValue()))
+            {
+                cutDownList.add(playerData);
+            }
 
-
-
+        }
+        String debug = String.format("The function getPlayerHeroes returned successfully", cutDownList);
+        LOG.debug(debug);
+        return cutDownList;
     }
 
+    private void getTopTenHeroes()
+    {
+
+    }
 
 
     public void validatePlayerID(long playerID) {

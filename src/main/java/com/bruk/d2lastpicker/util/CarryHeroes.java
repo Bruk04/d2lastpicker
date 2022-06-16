@@ -1,15 +1,16 @@
 package com.bruk.d2lastpicker.util;
 
-import com.bruk.d2lastpicker.dto.HeroData;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class CarryHeroes {
 
 
-    private List<Integer> positionOneHeroes;
-    private List<Integer> positionTwoHeroes;
+    private List<Integer> positionOneHeroes = new ArrayList<Integer>();
+    private List<Integer> positionTwoHeroes = new ArrayList<Integer>();
+
+    public CarryHeroes() {
+    }
 
     private List<Integer> allPossiblePositionOneHeroes()
     {
@@ -85,7 +86,6 @@ public class CarryHeroes {
         positionTwoHeroes.add(114);
         positionTwoHeroes.add(120);
         positionTwoHeroes.add(126);
-
         return positionTwoHeroes;
     }
 

@@ -18,6 +18,12 @@ public class PlayerHeroData {
         return hero_id;
     }
 
+    public int getHeroValue()
+    {
+        int idValue = Integer.parseInt(hero_id);
+        return idValue;
+    }
+
     @JsonSetter
     public void setHero_id(String hero_id) {
         this.hero_id = hero_id;
