@@ -5,16 +5,14 @@ import com.bruk.d2lastpicker.dto.HeroMatchupData;
 import com.bruk.d2lastpicker.dto.PlayerHeroData;
 import com.bruk.d2lastpicker.util.CarryHeroes;
 import com.bruk.d2lastpicker.util.D2LastPickerValidationException;
+import com.bruk.d2lastpicker.util.HeroWinrateData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.yaml.snakeyaml.util.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -47,7 +45,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
         getHeroMatchups(us, them);
-        getPlayerHeroes(playerID);
+        getTopTenHeroes(playerID);
 
 
         return new ArrayList<HeroData>();
@@ -128,9 +126,29 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return cutDownList;
     }
 
-    private void getTopTenHeroes()
+    private List<Integer> getTopTenHeroes(long playerId)
     {
-
+        List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
+        List<Integer> heroWinrate = new ArrayList<>();
+        CarryHeroes carryHeroes = new CarryHeroes();
+        Map<Integer, String> positionOneHeroNames = carryHeroes.getPositionOneHeroNames();
+        for(Map.Entry<Integer, String> e : positionOneHeroNames.entrySet())
+        {
+            for(PlayerHeroData playerHero : playerHeroes) {
+            if(playerHero.getHeroValue() == (e.getKey()))
+            {
+                if(playerHero.getGames() == 0)
+                {
+                    heroWinrate.add(0);
+                }
+                    int winrate = playerHero.getWin() / playerHero.getGames();
+                    String s = String.format("Winrate for Hero is: %d", winrate);
+                    LOG.debug(s);
+                    heroWinrate.add(winrate);
+                }
+            }
+        }
+        return heroWinrate;
     }
 
 
