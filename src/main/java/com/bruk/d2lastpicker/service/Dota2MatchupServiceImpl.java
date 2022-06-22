@@ -22,6 +22,9 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private static final int MAXIMUM_HERO_ID = 137;
     private static final int EXPECTED_US_LIST_LENGTH = 4;
     private static final int EXPECTED_THEM_LIST_LENGTH = 5;
+
+    private static final int TOP_TEN = 10;
+
     private static final double AVERAGE_WINRATE = 50.00;
 
     private static final Logger LOG = LoggerFactory.getLogger(Dota2MatchupServiceImpl.class);
@@ -126,12 +129,16 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return cutDownList;
     }
 
-    private List<Integer> getTopTenHeroes(long playerId)
+    private List<Double> getTopTenHeroes(long playerId)
     {
         List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
-        List<Integer> heroWinrate = new ArrayList<>();
+        List<Double> positionOneHeroWinrate = new ArrayList<>();
+        List<Double> positionTwoHeroWinrate = new ArrayList<>();
+        List<Double> topTenBothRoles = new ArrayList<>();
+
         CarryHeroes carryHeroes = new CarryHeroes();
         Map<Integer, String> positionOneHeroNames = carryHeroes.getPositionOneHeroNames();
+        Map<Integer, String> positionTwoHeroNames = carryHeroes.getPositionTwoHeroNames();
         for(Map.Entry<Integer, String> e : positionOneHeroNames.entrySet())
         {
             for(PlayerHeroData playerHero : playerHeroes) {
@@ -139,16 +146,62 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
             {
                 if(playerHero.getGames() == 0)
                 {
-                    heroWinrate.add(0);
+                    positionOneHeroWinrate.add(0.0);
                 }
-                    int winrate = playerHero.getWin() / playerHero.getGames();
-                    String s = String.format("Winrate for Hero is: %d", winrate);
-                    LOG.debug(s);
-                    heroWinrate.add(winrate);
+                if(playerHero.getWin() == 0)
+                {
+                    positionOneHeroWinrate.add(0.0);
+                }
+
+                    int wins = playerHero.getWin();
+                    int totalGames = playerHero.getGames();
+                    double winrate = (double) wins/totalGames;
+                if(Double.isNaN(winrate))
+                {
+                    continue;
+                }
+                positionOneHeroWinrate.add(winrate);
                 }
             }
         }
-        return heroWinrate;
+
+        Collections.sort(positionOneHeroWinrate, Collections.reverseOrder());
+        for(int i = 0; i < TOP_TEN; i++)
+        {
+           topTenBothRoles.add(positionOneHeroWinrate.get(i));
+        }
+
+        for(Map.Entry<Integer, String> e : positionTwoHeroNames.entrySet())
+        {
+            for(PlayerHeroData playerHero : playerHeroes) {
+                if(playerHero.getHeroValue() == (e.getKey()))
+                {
+                    if(playerHero.getGames() == 0)
+                    {
+                        positionTwoHeroWinrate.add(0.0);
+                    }
+                    if(playerHero.getWin() == 0)
+                    {
+                        positionTwoHeroWinrate.add(0.0);
+                    }
+                    int wins = playerHero.getWin();
+                    int totalGames = playerHero.getGames();
+                    double winrate = (double) wins/totalGames;
+                    if(Double.isNaN(winrate))
+                    {
+                        continue;
+                    }
+                    positionTwoHeroWinrate.add(winrate);
+                }
+            }
+        }
+
+        Collections.sort(positionTwoHeroWinrate, Collections.reverseOrder());
+        for(int i = 0; i < TOP_TEN; i++)
+        {
+            topTenBothRoles.add(positionTwoHeroWinrate.get(i));
+        }
+        return topTenBothRoles;
     }
 
 
