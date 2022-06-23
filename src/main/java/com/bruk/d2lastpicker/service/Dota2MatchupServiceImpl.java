@@ -129,77 +129,79 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return cutDownList;
     }
 
-    private List<Double> getTopTenHeroes(long playerId)
-    {
+    private List<HeroWinrateData> getTopTenHeroes(long playerId) {
+        double winrate;
         List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
         List<Double> positionOneHeroWinrate = new ArrayList<>();
         List<Double> positionTwoHeroWinrate = new ArrayList<>();
-        List<Double> topTenBothRoles = new ArrayList<>();
+        List<HeroWinrateData> topTenBothRoles = new ArrayList<>();
+        List<HeroWinrateData> heroWinrateData = new ArrayList<>();
 
         CarryHeroes carryHeroes = new CarryHeroes();
         Map<Integer, String> positionOneHeroNames = carryHeroes.getPositionOneHeroNames();
         Map<Integer, String> positionTwoHeroNames = carryHeroes.getPositionTwoHeroNames();
-        for(Map.Entry<Integer, String> e : positionOneHeroNames.entrySet())
-        {
-            for(PlayerHeroData playerHero : playerHeroes) {
-            if(playerHero.getHeroValue() == (e.getKey()))
-            {
-                if(playerHero.getGames() == 0)
-                {
-                    positionOneHeroWinrate.add(0.0);
-                }
-                if(playerHero.getWin() == 0)
-                {
-                    positionOneHeroWinrate.add(0.0);
-                }
-
+        for (Map.Entry<Integer, String> e : positionOneHeroNames.entrySet()) {
+            for (PlayerHeroData playerHero : playerHeroes) {
+                if (playerHero.getHeroValue() == (e.getKey())) {
                     int wins = playerHero.getWin();
                     int totalGames = playerHero.getGames();
-                    double winrate = (double) wins/totalGames;
-                if(Double.isNaN(winrate))
-                {
-                    continue;
-                }
-                positionOneHeroWinrate.add(winrate);
-                }
-            }
-        }
-
-        Collections.sort(positionOneHeroWinrate, Collections.reverseOrder());
-        for(int i = 0; i < TOP_TEN; i++)
-        {
-           topTenBothRoles.add(positionOneHeroWinrate.get(i));
-        }
-
-        for(Map.Entry<Integer, String> e : positionTwoHeroNames.entrySet())
-        {
-            for(PlayerHeroData playerHero : playerHeroes) {
-                if(playerHero.getHeroValue() == (e.getKey()))
-                {
-                    if(playerHero.getGames() == 0)
-                    {
-                        positionTwoHeroWinrate.add(0.0);
+                    if (wins == 0) {
+                        winrate = 0;
                     }
-                    if(playerHero.getWin() == 0)
-                    {
-                        positionTwoHeroWinrate.add(0.0);
+                    if (totalGames == 0) {
+                        winrate = 0;
+                    } else {
+                        winrate = (double) wins / totalGames;
                     }
-                    int wins = playerHero.getWin();
-                    int totalGames = playerHero.getGames();
-                    double winrate = (double) wins/totalGames;
-                    if(Double.isNaN(winrate))
-                    {
+                    if (Double.isNaN(winrate)) {
                         continue;
                     }
-                    positionTwoHeroWinrate.add(winrate);
+                    Integer heroID = e.getKey();
+                    String heroName = e.getValue();
+                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName);
+                    heroWinrateData.add(heroData);
                 }
             }
         }
 
-        Collections.sort(positionTwoHeroWinrate, Collections.reverseOrder());
-        for(int i = 0; i < TOP_TEN; i++)
-        {
-            topTenBothRoles.add(positionTwoHeroWinrate.get(i));
+        Collections.sort(heroWinrateData, Collections.reverseOrder());
+        for (int i = 0; i < TOP_TEN; i++) {
+            HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
+                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName());
+            topTenBothRoles.add(heroData);
+
+        }
+
+        for (Map.Entry<Integer, String> e : positionTwoHeroNames.entrySet()) {
+            for (PlayerHeroData playerHero : playerHeroes) {
+                if (playerHero.getHeroValue() == (e.getKey())) {
+
+                    int wins = playerHero.getWin();
+                    int totalGames = playerHero.getGames();
+                    if (wins == 0) {
+                        winrate = 0;
+                    }
+                    if (totalGames == 0) {
+                        winrate = 0;
+                    } else {
+                        winrate = (double) wins / totalGames;
+                    }
+                    if (Double.isNaN(winrate)) {
+                        continue;
+                    }
+                    Integer heroID = e.getKey();
+                    String heroName = e.getValue();
+                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName);
+                    heroWinrateData.add(heroData);
+                }
+            }
+        }
+
+        Collections.sort(heroWinrateData, Collections.reverseOrder());
+        for (int i = 0; i < TOP_TEN; i++) {
+            HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
+                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName());
+            topTenBothRoles.add(heroData);
         }
         return topTenBothRoles;
     }

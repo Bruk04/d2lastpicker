@@ -1,6 +1,8 @@
 package com.bruk.d2lastpicker.util;
 
-public class HeroWinrateData {
+import com.bruk.d2lastpicker.dto.HeroData;
+
+public class HeroWinrateData implements Comparable<HeroWinrateData> {
 
     private double winrate;
     private int heroId;
@@ -14,6 +16,7 @@ public class HeroWinrateData {
         this.heroId = heroId;
         this.heroName = heroName;
     }
+
 
 
     public double getWinrate() {
@@ -38,5 +41,20 @@ public class HeroWinrateData {
 
     public void setHeroName(String heroName) {
         this.heroName = heroName;
+    }
+
+    @Override
+    public int compareTo(HeroWinrateData o) {
+        double otherWinrate = o.winrate;
+
+        if (winrate == otherWinrate) {
+            return 0;
+        }
+        if (winrate > otherWinrate) {
+            return 1;
+        } else {
+            return -1;
+        }
+
     }
 }
