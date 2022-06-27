@@ -47,43 +47,43 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        getHeroMatchups(us, them);
-        getTopTenHeroes(playerID);
-
+        getHeroMatchups(us, them, playerID);
 
         return new ArrayList<HeroData>();
     }
 
-    private List<String> playerDataParser(long playerID)
-    {
-        List<PlayerHeroData> playerHeroData = APIService.getPlayerHeroData(playerID);
-        List<String> allHeroIds = new ArrayList<>();
-        for(PlayerHeroData playerData : playerHeroData)
-        {
-            String heroId = playerData.getHero_id();
-            allHeroIds.add(heroId);
+    private List<HeroWinrateData> getHeroMatchups(List<Integer> us, List<Integer> them, long playerId) {
+        double winrate;
+        List<HeroWinrateData> topTenBothRoles = getTopTenHeroes(playerId);
+        List<Integer> heroIdList = new ArrayList<>();
+        List<HeroWinrateData> heroWinrateData = new ArrayList<>();
+        String name = "";
+        int ID = 0;
+        for (HeroWinrateData e : topTenBothRoles) {
+            heroIdList.add(e.getHeroId());
         }
-        return allHeroIds;
-    }
+        for (int i = 0; i <= heroIdList.size(); i++) {
+            List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(heroIdList.get(i));
+            for (HeroMatchupData matchupData : heroMatchupData) {
+                long heroID = matchupData.getHero_id();
+                Integer heroInt = (int) heroID;
+                if (them.contains(heroInt)) {
+                    if (matchupData.getGames_played() == 0) {
+                        winrate = 0;
+                    }
+                    if (matchupData.getWins() == 0) {
+                        winrate = 0;
+                    }
+                    double wins = matchupData.getWins();
+                    double games = matchupData.getGames_played();
+                    winrate = wins / games;
+                        HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name);
+                        heroWinrateData.add(winrateData);
 
-
-    private List<Double> getHeroMatchups(List<Integer> us, List<Integer> them)
-    {
-        long heroID = us.get(0);
-        List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(heroID);
-        List<Double> heroWinrates = new ArrayList<>();
-        for(HeroMatchupData matchupData : heroMatchupData) {
-            long hero = matchupData.getHero_id();
-            Integer heroInt = (int)hero;
-            if (us.contains(heroInt) || them.contains(heroInt)) {
-                double wins = matchupData.getWins();
-                double games = matchupData.getGames_played();
-                double winrate = wins/games;
-                LOG.debug(String.valueOf(winrate));
-                heroWinrates.add(winrate);
+                }
             }
         }
-        return heroWinrates;
+        return heroWinrateData;
     }
 
     private List<PlayerHeroData> getPlayerHeroes(long playerId)
@@ -122,7 +122,6 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
             {
                 cutDownList.add(playerData);
             }
-
         }
         String debug = String.format("The function getPlayerHeroes returned successfully", cutDownList);
         LOG.debug(debug);
@@ -132,11 +131,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private List<HeroWinrateData> getTopTenHeroes(long playerId) {
         double winrate;
         List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
-        List<Double> positionOneHeroWinrate = new ArrayList<>();
-        List<Double> positionTwoHeroWinrate = new ArrayList<>();
         List<HeroWinrateData> topTenBothRoles = new ArrayList<>();
         List<HeroWinrateData> heroWinrateData = new ArrayList<>();
-
         CarryHeroes carryHeroes = new CarryHeroes();
         Map<Integer, String> positionOneHeroNames = carryHeroes.getPositionOneHeroNames();
         Map<Integer, String> positionTwoHeroNames = carryHeroes.getPositionTwoHeroNames();
