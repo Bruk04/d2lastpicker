@@ -42,50 +42,64 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     public Dota2MatchupServiceImpl() {
     }
 
+    /*
+    This class is the main algorithm of the program. Given a player ID, 4 heroes on your team, and 5 heroes on the
+    enemy team, it finds the "best" hero to pick based on a given players individual performance on a hero as well as the
+    heroes' performance against the heroes on the enemy team.
+     */
+
+
     public List<HeroData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them) {
         validatePlayerID(playerID);
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        getHeroMatchups(us, them, playerID);
+        getHeroMatchups(them, playerID);
 
         return new ArrayList<HeroData>();
     }
 
-    private List<HeroWinrateData> getHeroMatchups(List<Integer> us, List<Integer> them, long playerId) {
+    // Calls getTopTenHeroes(), for each of the players best heroes (both pos 1 and 2) finds their associated winrate
+    // by calling the matchupData API to know that heroes winrate against the heroes that are shown on the enemy team.
+    private List<HeroWinrateData> getHeroMatchups(List<Integer> them, long playerId) {
         double winrate;
         List<HeroWinrateData> topTenBothRoles = getTopTenHeroes(playerId);
-        List<Integer> heroIdList = new ArrayList<>();
         List<HeroWinrateData> heroWinrateData = new ArrayList<>();
         String name = "";
         int ID = 0;
-        for (HeroWinrateData e : topTenBothRoles) {
-            heroIdList.add(e.getHeroId());
-        }
-        for (int i = 0; i <= heroIdList.size(); i++) {
-            List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(heroIdList.get(i));
-            for (HeroMatchupData matchupData : heroMatchupData) {
-                long heroID = matchupData.getHero_id();
-                Integer heroInt = (int) heroID;
-                if (them.contains(heroInt)) {
-                    if (matchupData.getGames_played() == 0) {
-                        winrate = 0;
-                    }
-                    if (matchupData.getWins() == 0) {
-                        winrate = 0;
-                    }
-                    double wins = matchupData.getWins();
-                    double games = matchupData.getGames_played();
-                    winrate = wins / games;
-                        HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name);
-                        heroWinrateData.add(winrateData);
+        int i = 0;
 
-                }
-            }
-        }
+      for (HeroWinrateData e : topTenBothRoles) {
+          name = e.getHeroName();
+          ID = e.getHeroId();
+              List<HeroMatchupData> heroMatchupData = APIService.getHeroMatchupData(topTenBothRoles.get(i).getHeroId());
+              i++;
+              for (HeroMatchupData matchupData : heroMatchupData) {
+                  long heroID = matchupData.getHero_id();
+                  Integer heroInt = (int) heroID;
+                  if (them.contains(heroInt)) {
+                      if (matchupData.getGames_played() == 0) {
+                          winrate = 0;
+                      }
+                      if (matchupData.getWins() == 0) {
+                          winrate = 0;
+                      }
+                      double wins = matchupData.getWins();
+                      double games = matchupData.getGames_played();
+                      winrate = wins / games;
+                      HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name);
+                      heroWinrateData.add(winrateData);
+
+              }
+          }
+      }
         return heroWinrateData;
     }
 
+
+    // Calls the getPlayerHeroData API service to find basic stastics about all the heroes a certain player plays
+    // then finds only the heroes we care about (pos 1 and 2) and adds them to a list storing all "carry" hero IDs
+    // that the specific player plays/has played.
     private List<PlayerHeroData> getPlayerHeroes(long playerId)
     {
         LOG.debug("Calling getPlayerHeroes");
@@ -128,6 +142,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         return cutDownList;
     }
 
+    // finds a players (given a playerID) best 10 position one heroes and best 10 position 2 heroes
+    // returns a list of HeroWinrateData that contains a hero name, hero ID, and the players winrate on that hero
     private List<HeroWinrateData> getTopTenHeroes(long playerId) {
         double winrate;
         List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
