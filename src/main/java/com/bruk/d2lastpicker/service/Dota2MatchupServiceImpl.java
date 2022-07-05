@@ -22,6 +22,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private static final int MAXIMUM_HERO_ID = 137;
     private static final int EXPECTED_US_LIST_LENGTH = 4;
     private static final int EXPECTED_THEM_LIST_LENGTH = 5;
+    private static final int MINIMUM_GAMES_REQUIRED = 10;
 
     private static final int TOP_TEN = 10;
 
@@ -56,6 +57,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateBothLists(us, them);
         getHeroMatchups(them, playerID);
 
+
         return new ArrayList<HeroData>();
     }
 
@@ -67,6 +69,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         List<HeroWinrateData> heroWinrateData = new ArrayList<>();
         String name = "";
         int ID = 0;
+        int enemyHeroID = 0;
         int i = 0;
 
       for (HeroWinrateData e : topTenBothRoles) {
@@ -78,6 +81,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                   long heroID = matchupData.getHero_id();
                   Integer heroInt = (int) heroID;
                   if (them.contains(heroInt)) {
+                      enemyHeroID = heroInt;
                       if (matchupData.getGames_played() == 0) {
                           winrate = 0;
                       }
@@ -87,9 +91,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                       double wins = matchupData.getWins();
                       double games = matchupData.getGames_played();
                       winrate = wins / games;
-                      HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name);
+                      HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name, enemyHeroID);
                       heroWinrateData.add(winrateData);
-
               }
           }
       }
@@ -162,7 +165,14 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                     }
                     if (totalGames == 0) {
                         winrate = 0;
-                    } else {
+                    }
+
+                    if(totalGames < MINIMUM_GAMES_REQUIRED)
+                    {
+                        continue;
+                    }
+
+                    else {
                         winrate = (double) wins / totalGames;
                     }
                     if (Double.isNaN(winrate)) {
