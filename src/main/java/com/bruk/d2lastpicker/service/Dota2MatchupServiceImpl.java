@@ -26,7 +26,9 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
     private static final int TOP_TEN = 10;
 
-    private static final double AVERAGE_WINRATE = 50.00;
+    private static final int GROUPINGS = 5;
+
+    private static final double AVERAGE_WINRATE = .50;
 
     private static final Logger LOG = LoggerFactory.getLogger(Dota2MatchupServiceImpl.class);
 
@@ -55,10 +57,39 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        getHeroMatchups(them, playerID);
+        groupWinrates(them, playerID);
 
 
         return new ArrayList<HeroData>();
+    }
+
+    private List<HeroWinrateData> groupWinrates(List<Integer> them, long playerID)
+    {
+        double adjustedPickRate;
+        String heroName = "";
+        int heroID = 0;
+        double totalAdjustedPickRate = 0;
+        int i = 1;
+        List<HeroWinrateData> adjustedPickRateList = new ArrayList<>();
+        List<HeroWinrateData> heroMatchupList = getHeroMatchups(them, playerID);
+        for(HeroWinrateData e : heroMatchupList)
+        {
+            if(i == GROUPINGS)
+            {
+                HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName);
+                adjustedPickRateList.add(adjustedHeroPickRate);
+                i = 0;
+                adjustedPickRate = 0;
+                totalAdjustedPickRate = 0;
+                continue;
+            }
+            heroName = e.getHeroName();
+            heroID = e.getHeroId();
+            adjustedPickRate = e.getWinrate() - AVERAGE_WINRATE;
+            totalAdjustedPickRate += adjustedPickRate;
+            i++;
+        }
+        return adjustedPickRateList;
     }
 
     // Calls getTopTenHeroes(), for each of the players best heroes (both pos 1 and 2) finds their associated winrate
