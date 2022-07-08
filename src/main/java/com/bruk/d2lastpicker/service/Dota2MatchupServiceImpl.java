@@ -26,6 +26,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
 
     private static final int TOP_TEN = 10;
 
+    private static final int TOP_THREE = 3;
+
     private static final int GROUPINGS = 5;
 
     private static final double AVERAGE_WINRATE = .50;
@@ -51,18 +53,52 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     heroes' performance against the heroes on the enemy team.
      */
 
-
-    public List<HeroData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them) {
+    public List<HeroWinrateData> calculateMatchup(long playerID, List<Integer> us, List<Integer> them) {
         validatePlayerID(playerID);
         validateHeroIDs(us, EXPECTED_US_LIST_LENGTH);
         validateHeroIDs(them, EXPECTED_THEM_LIST_LENGTH);
         validateBothLists(us, them);
-        groupWinrates(them, playerID);
+        List<HeroWinrateData> topThreeBothRoles = topThreeHeroes(them, playerID);
 
-
-        return new ArrayList<HeroData>();
+        for(HeroWinrateData e : topThreeBothRoles)
+        {
+            String debug = String.format("Top Hero Name: %s Winrate: %f isCarry: %b", e.getHeroName(), e.getWinrate(), e.isCarry());
+            LOG.debug(debug);
+        }
+        return topThreeBothRoles;
     }
 
+    private List<HeroWinrateData> topThreeHeroes(List<Integer> them, long playerID)
+    {
+        List<HeroWinrateData> totalHeroWinrates = groupWinrates(them, playerID);
+        List<HeroWinrateData> topThreeCarries = new ArrayList<>();
+        List<HeroWinrateData> topThreeMids = new ArrayList<>();
+        List<HeroWinrateData> topThreeBothRoles = new ArrayList<>();
+        int numberOfMids = 0;
+        int numberofCarries = 0;
+        Collections.sort(totalHeroWinrates, Collections.reverseOrder());
+        for(HeroWinrateData e : totalHeroWinrates)
+        {
+            if(e.isCarry() && numberofCarries < TOP_THREE)
+            {
+                topThreeCarries.add(e);
+                numberofCarries++;
+                continue;
+            }
+            if(!e.isCarry() && numberOfMids < TOP_THREE)
+
+            {
+                topThreeMids.add(e);
+                numberOfMids++;
+            }
+        }
+        topThreeBothRoles.addAll(topThreeCarries);
+        topThreeBothRoles.addAll(topThreeMids);
+        return topThreeBothRoles;
+    }
+
+
+    //
     private List<HeroWinrateData> groupWinrates(List<Integer> them, long playerID)
     {
         double adjustedPickRate;
@@ -70,15 +106,17 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         int heroID = 0;
         double totalAdjustedPickRate = 0;
         int i = 1;
+        boolean isCarry = false;
         List<HeroWinrateData> adjustedPickRateList = new ArrayList<>();
         List<HeroWinrateData> heroMatchupList = getHeroMatchups(them, playerID);
         for(HeroWinrateData e : heroMatchupList)
         {
+            isCarry = e.isCarry();
             if(i == GROUPINGS)
             {
-                HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName);
+                HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName, isCarry);
                 adjustedPickRateList.add(adjustedHeroPickRate);
-                i = 0;
+                i = 1;
                 adjustedPickRate = 0;
                 totalAdjustedPickRate = 0;
                 continue;
@@ -89,6 +127,9 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
             totalAdjustedPickRate += adjustedPickRate;
             i++;
         }
+        // pickup/add the last hero that needs to still be added to the list
+        HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName, isCarry);
+        adjustedPickRateList.add(adjustedHeroPickRate);
         return adjustedPickRateList;
     }
 
@@ -122,7 +163,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                       double wins = matchupData.getWins();
                       double games = matchupData.getGames_played();
                       winrate = wins / games;
-                      HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name, enemyHeroID);
+                      HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name, e.isCarry());
                       heroWinrateData.add(winrateData);
               }
           }
@@ -179,39 +220,41 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     // finds a players (given a playerID) best 10 position one heroes and best 10 position 2 heroes
     // returns a list of HeroWinrateData that contains a hero name, hero ID, and the players winrate on that hero
     private List<HeroWinrateData> getTopTenHeroes(long playerId) {
-        double winrate;
+        double winrate = 0;
         List<PlayerHeroData> playerHeroes = getPlayerHeroes(playerId);
         List<HeroWinrateData> topTenBothRoles = new ArrayList<>();
         List<HeroWinrateData> heroWinrateData = new ArrayList<>();
         CarryHeroes carryHeroes = new CarryHeroes();
         Map<Integer, String> positionOneHeroNames = carryHeroes.getPositionOneHeroNames();
         Map<Integer, String> positionTwoHeroNames = carryHeroes.getPositionTwoHeroNames();
+
+        // for all the position one heroes in the game
         for (Map.Entry<Integer, String> e : positionOneHeroNames.entrySet()) {
+            // for all the heroes the player has played
             for (PlayerHeroData playerHero : playerHeroes) {
+
+                // if the player has played the position one hero
                 if (playerHero.getHeroValue() == (e.getKey())) {
                     int wins = playerHero.getWin();
                     int totalGames = playerHero.getGames();
-                    if (wins == 0) {
-                        winrate = 0;
-                    }
-                    if (totalGames == 0) {
-                        winrate = 0;
-                    }
 
-                    if(totalGames < MINIMUM_GAMES_REQUIRED)
+                    // player hasn't played enough games on the hero, skip
+                    if(totalGames < MINIMUM_GAMES_REQUIRED || Double.isNaN(winrate) )
                     {
                         continue;
                     }
 
+                    if (wins == 0 || totalGames == 0) {
+                        winrate = 0;
+                    }
                     else {
                         winrate = (double) wins / totalGames;
                     }
-                    if (Double.isNaN(winrate)) {
-                        continue;
-                    }
                     Integer heroID = e.getKey();
                     String heroName = e.getValue();
-                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName);
+
+                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName, true);
+                    LOG.debug(heroData.getHeroName());
                     heroWinrateData.add(heroData);
                 }
             }
@@ -220,10 +263,12 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         Collections.sort(heroWinrateData, Collections.reverseOrder());
         for (int i = 0; i < TOP_TEN; i++) {
             HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
-                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName());
+                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName(), true);
             topTenBothRoles.add(heroData);
-
         }
+
+        // clearing the List<HeroWinrateData> to allow for position two heroes to be looked over
+        heroWinrateData.clear();
 
         for (Map.Entry<Integer, String> e : positionTwoHeroNames.entrySet()) {
             for (PlayerHeroData playerHero : playerHeroes) {
@@ -244,7 +289,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                     }
                     Integer heroID = e.getKey();
                     String heroName = e.getValue();
-                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName);
+                    HeroWinrateData heroData = new HeroWinrateData(winrate, heroID, heroName, false);
                     heroWinrateData.add(heroData);
                 }
             }
@@ -253,7 +298,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         Collections.sort(heroWinrateData, Collections.reverseOrder());
         for (int i = 0; i < TOP_TEN; i++) {
             HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
-                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName());
+                    heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName(), false);
             topTenBothRoles.add(heroData);
         }
         return topTenBothRoles;

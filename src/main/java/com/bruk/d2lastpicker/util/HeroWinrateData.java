@@ -6,6 +6,9 @@ public class HeroWinrateData implements Comparable<HeroWinrateData> {
 
     private double winrate;
     private int heroId;
+    private int enemyHeroId;
+    private String heroName;
+    private boolean isCarry;
 
     public int getEnemyHeroId() {
         return enemyHeroId;
@@ -15,9 +18,6 @@ public class HeroWinrateData implements Comparable<HeroWinrateData> {
         this.enemyHeroId = enemyHeroId;
     }
 
-    private int enemyHeroId;
-    private String heroName;
-
     public boolean isCarry() {
         return isCarry;
     }
@@ -26,35 +26,19 @@ public class HeroWinrateData implements Comparable<HeroWinrateData> {
         isCarry = carry;
     }
 
-    public boolean isMid() {
-        return isMid;
-    }
 
-    public void setMid(boolean mid) {
-        isMid = mid;
-    }
 
-    private boolean isCarry;
-
-    private boolean isMid;
 
     public HeroWinrateData() {
     }
 
-    public HeroWinrateData(double winrate, int heroId, String heroName) {
+    public HeroWinrateData(double winrate, int heroId, String heroName, boolean isCarry) {
         this.winrate = winrate;
         this.heroId = heroId;
         this.heroName = heroName;
+        this.isCarry = isCarry;
     }
 
-    public HeroWinrateData(double winrate, int heroId, String heroName, int enemyHeroId)
-
-    {
-        this.winrate = winrate;
-        this.heroId = heroId;
-        this.heroName = heroName;
-        this.enemyHeroId = enemyHeroId;
-    }
 
 
 
