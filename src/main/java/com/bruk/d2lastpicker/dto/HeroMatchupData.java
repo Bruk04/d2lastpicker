@@ -12,6 +12,12 @@ public class HeroMatchupData {
     public HeroMatchupData() {
     }
 
+    public HeroMatchupData(long hero_id, double games_played, double wins) {
+        this.hero_id = hero_id;
+        this.games_played = games_played;
+        this.wins = wins;
+    }
+
     @JsonGetter
     public long getHero_id() {
         return hero_id;

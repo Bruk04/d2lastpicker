@@ -261,7 +261,12 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         }
 
         Collections.sort(heroWinrateData, Collections.reverseOrder());
-        for (int i = 0; i < TOP_TEN; i++) {
+        int maxHeroCount = TOP_TEN;
+        if(heroWinrateData.size() < TOP_TEN)
+        {
+            maxHeroCount = heroWinrateData.size();
+        }
+        for (int i = 0; i < maxHeroCount; i++) {
             HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
                     heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName(), true);
             topTenBothRoles.add(heroData);
@@ -296,7 +301,12 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         }
 
         Collections.sort(heroWinrateData, Collections.reverseOrder());
-        for (int i = 0; i < TOP_TEN; i++) {
+        maxHeroCount = TOP_TEN;
+        if(heroWinrateData.size() < TOP_TEN)
+        {
+            maxHeroCount = heroWinrateData.size();
+        }
+        for (int i = 0; i < maxHeroCount; i++) {
             HeroWinrateData heroData = new HeroWinrateData(heroWinrateData.get(i).getWinrate(),
                     heroWinrateData.get(i).getHeroId(), heroWinrateData.get(i).getHeroName(), false);
             topTenBothRoles.add(heroData);

@@ -13,6 +13,13 @@ public class PlayerHeroData {
 
     }
 
+    public PlayerHeroData(String hero_id, int games, int win) {
+        this.hero_id = hero_id;
+        this.games = games;
+        this.win = win;
+    }
+
+
     @JsonGetter
     public String getHero_id() {
         return hero_id;
