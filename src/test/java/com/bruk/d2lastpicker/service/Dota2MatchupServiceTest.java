@@ -144,7 +144,7 @@ public class Dota2MatchupServiceTest {
         try {
             List<HeroWinrateData> data = matchupService.calculateMatchup(VALID_PLAYER_ID, us, them);
             assert data.size() == 6;
-            
+
         }
         catch(Exception e)
         {
