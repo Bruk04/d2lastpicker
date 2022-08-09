@@ -71,28 +71,16 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     private List<HeroWinrateData> topThreeHeroes(List<Integer> them, long playerID)
     {
         List<HeroWinrateData> totalHeroWinrates = groupWinrates(them, playerID);
-        List<HeroWinrateData> finalHeroWinrates = new ArrayList<>();
         List<HeroWinrateData> topThreeCarries = new ArrayList<>();
         List<HeroWinrateData> topThreeMids = new ArrayList<>();
         List<HeroWinrateData> topThreeBothRoles = new ArrayList<>();
         int numberOfMids = 0;
         int numberofCarries = 0;
         double totalWinrate =0;
-        int i = 0;
-        for(HeroWinrateData e : totalHeroWinrates)
-        {
-                totalWinrate += e.getWinrate();
-                i++;
-                if(i == 5)
-                {
-                    finalHeroWinrates.add(new HeroWinrateData(totalWinrate, e.getHeroId(), e.getHeroName(), e.isCarry()));
-                    i = 0;
-                    continue;
-                }
-        }
 
-        Collections.sort(finalHeroWinrates, Collections.reverseOrder());
-        for(HeroWinrateData e : finalHeroWinrates)
+        Collections.sort(totalHeroWinrates, Collections.reverseOrder());
+        for(HeroWinrateData e : totalHeroWinrates
+        )
         {
             if(e.isCarry() && numberofCarries < TOP_THREE)
             {
@@ -158,6 +146,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         int ID = 0;
         int enemyHeroID = 0;
         int i = 0;
+        int f = 0;
 
       for (HeroWinrateData e : topTenBothRoles) {
 
@@ -181,6 +170,12 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                       winrate = wins / games;
                       HeroWinrateData winrateData = new HeroWinrateData(winrate, ID, name, e.isCarry());
                       heroWinrateData.add(winrateData);
+                      f++;
+                      if(f== 5)
+                      {
+                          f = 0;
+                          break;
+                      }
               }
           }
       }
