@@ -109,12 +109,17 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
         int heroID = 0;
         double totalAdjustedPickRate = 0;
         int i = 1;
+        int runs = 0;
         boolean isCarry = false;
         List<HeroWinrateData> adjustedPickRateList = new ArrayList<>();
         List<HeroWinrateData> heroMatchupList = getHeroMatchups(them, playerID);
         for(HeroWinrateData e : heroMatchupList)
         {
             isCarry = e.isCarry();
+            heroName = e.getHeroName();
+            heroID = e.getHeroId();
+            adjustedPickRate = e.getWinrate() - AVERAGE_WINRATE;
+            totalAdjustedPickRate += adjustedPickRate;
             if(i == GROUPINGS)
             {
                 HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName, isCarry);
@@ -124,11 +129,8 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
                 totalAdjustedPickRate = 0;
                 continue;
             }
-            heroName = e.getHeroName();
-            heroID = e.getHeroId();
-            adjustedPickRate = e.getWinrate() - AVERAGE_WINRATE;
-            totalAdjustedPickRate += adjustedPickRate;
             i++;
+            runs++;
         }
         // pickup/add the last hero that needs to still be added to the list
         HeroWinrateData adjustedHeroPickRate = new HeroWinrateData(totalAdjustedPickRate, heroID, heroName, isCarry);
