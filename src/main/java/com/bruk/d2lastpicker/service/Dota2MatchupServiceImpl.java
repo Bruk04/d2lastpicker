@@ -185,7 +185,7 @@ public class Dota2MatchupServiceImpl implements Dota2MatchupService {
     }
 
 
-    // Calls the getPlayerHeroData API service to find basic stastics about all the heroes a certain player plays
+    // Calls the getPlayerHeroData API service to find basic stats about all the heroes a certain player plays
     // then finds only the heroes we care about (pos 1 and 2) and adds them to a list storing all "carry" hero IDs
     // that the specific player plays/has played.
     private List<PlayerHeroData> getPlayerHeroes(long playerId)

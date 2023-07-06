@@ -7,6 +7,7 @@ import com.bruk.d2lastpicker.util.D2LastPickerValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/picker")
 public class LastPickerController {
-
 
     private static final String ALL_HEROES = "/heroes";
 

@@ -55,7 +55,6 @@ public class Dota2APIServiceImpl implements Dota2APIService {
     }
 
 
-
     @Override
     public List<HeroData> getHeroData() {
         try {
