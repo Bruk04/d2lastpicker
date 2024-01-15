@@ -1,7 +1,7 @@
 # d2lastpicker
 TODO:
 
--- (Potential) bug where incorrect hero jmay be given (sometimes suggests heroes with - winrates)
+-- (Potential) bug where incorrect hero may be given (sometimes suggests heroes with - winrates)
 
 --Create table of images to be referenced in React code
 
