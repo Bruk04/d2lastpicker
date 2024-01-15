@@ -3,7 +3,7 @@ TODO:
 
 -- (Potential) bug where incorrect hero may be given (sometimes suggests heroes with - winrates)
 
---Create table of images to be referenced in React code
+--Create table of images to be referenced in React code (done)
 
 --Turn images into interatacble buttons, calling necessary functions and updating webpage in real-time
 
