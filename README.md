@@ -5,7 +5,7 @@ TODO:
 
 --Create table of images to be referenced in React code (done)
 
---Turn images into interatacble buttons, calling necessary functions and updating webpage in real-time
+--Turn images into interactable buttons, calling necessary functions and updating webpage in real-time
 
 -- Stylizing and creating webpage
 
