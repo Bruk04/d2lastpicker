@@ -12,9 +12,9 @@ Built using: Java, React, Spring, and Maven. Testing in JUnit and Mockito
 
 TODO:
 
--- ~~Installiation of React (Complete)~~
--- Setup CORS and Axios
--- Finish main two Components (Draft & Hero Buttons)
--- Creation of submit button component (to be used after all heroes (ally and enemy) are clicked), Component must then display the top 5 and their respective winrates
+ - ~~Installiation of React (Complete)~~
+ - Setup CORS and Axios
+ - Finish main two Components (Draft & Hero Buttons)
+ = Creation of submit button component (to be used after all heroes (ally and enemy) are clicked), Component must then display the top 5 and their respective winrates
 
 
