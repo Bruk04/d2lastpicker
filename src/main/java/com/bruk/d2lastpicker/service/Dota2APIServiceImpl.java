@@ -26,6 +26,8 @@ public class Dota2APIServiceImpl implements Dota2APIService {
 
 
 
+    // Given a players unique player ID, the function calls to open Dota API and creates a List of potential heroes
+    // to be utilized by the Dota2MatchupService
     @Override
     public List<PlayerHeroData> getPlayerHeroData(long playerId) {
         try {
@@ -55,6 +57,9 @@ public class Dota2APIServiceImpl implements Dota2APIService {
     }
 
 
+
+    // This function calls out to opendota API and returns all heroes that currently exist inside the game as a List
+    // heroes are represented mainly by their name and ID.
     @Override
     public List<HeroData> getHeroData() {
         try {
@@ -84,6 +89,9 @@ public class Dota2APIServiceImpl implements Dota2APIService {
         }
     }
 
+
+    // This function calls out to the open Dota api for a hero, given an ID, and gets the winrate data
+    // associated with that hero.
     @Override
     public List<HeroMatchupData> getHeroMatchupData(long heroId)
     {
